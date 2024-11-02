@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html xmlns:th="www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Tanushri Blog- Index-Filter page</title>
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+	rel="stylesheet"
+	integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+	crossorigin="anonymous">
+
+<script src="/webjars/jquery/3.7.1/jquery.min.js"></script>
+
+
+
+<style>
+
+/* footer style for bottom */
+html, body {
+	height: 100%;
+	margin: 0;
+}
+
+.content {
+	min-height: 100vh; /* Full viewport height */
+	display: flex;
+	flex-direction: column;
+}
+
+footer {
+	margin-top: auto;
+	padding: 10px;
+	text-align: center;
+	background-color: #000000;
+	color: white;
+}
+</style>
+
+</head>
+<body>
+
+	<div class="container">
+		<div class="content">
+
+
+			<nav class="navbar navbar-expand-lg  navbar-dark bg-dark">
+				<div class="container-fluid">
+					<a class="navbar-brand" href="/">Tanushri Blog App</a>
+					<button class="navbar-toggler" type="button"
+						data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+						aria-controls="navbarSupportedContent" aria-expanded="false"
+						aria-label="Toggle navigation">
+						<span class="navbar-toggler-icon"></span>
+					</button>
+					<div class="collapse navbar-collapse" id="navbarSupportedContent">
+						<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+							<li class="nav-item"><a class="nav-link active" href="/">All
+									Posts</a></li>
+							<li class="nav-item"><a class="nav-link active"
+								href="register">Register</a></li>
+
+							<li class="nav-item"><a class="nav-link active" href="login">Login</a></li>
+						</ul>
+
+					</div>
+				</div>
+			</nav>
+			<section class="h-100 gradient-form">
+				<div class="container py-5 h-100">
+					<div
+						class="row d-flex justify-content-center align-items-center h-100">
+						<div class="col-md-10">
+							<div class="card rounded-3 text-black">
+								<div class="row g-0">
+									<div class="col-lg-12">
+										<div class="card-body p-md-5 mx-md-4">
+
+											<!-- read data -->
+
+											<h2 th:text="${post.title}"></h2>
+											<hr />
+											<h5>
+												<span th:text="${post.description}"></span>
+											</h5>
+											<hr />
+											<p th:utext="${post.content}"></p>
+											<hr />
+											<!-- Comments Section -->
+
+											<h2>Comments:</h2>
+											<div id="comment-section">
+												<div th:each="comment : ${comments}" class="pb-2 pt-2">
+													<p>
+														<b>Name: </b><b th:text="${comment.name}"></b>
+													</p>
+													<p>
+													<b>	Date:</b> <i
+															th:text="${comment.createdOn}"></i>
+													</p>
+													<b>Comment:</b>&nbsp;<span th:text="${comment.comment}"></span>
+													
+												</div>
+											</div>
+											<hr />
+
+											<!-- Comment Form -->
+
+											<div class="container py-5 h-100">
+												<div
+													class="row d-flex justify-content-center align-items-center h-100">
+													<div class="col-md-12">
+														<div class="card rounded-3 text-black">
+															<div class="row g-0">
+																<div class="col-lg-12">
+																	<div class="card-body p-md-5 mx-md-4">
+
+
+																		<nav class="navbar bg-body-tertiary">
+																			<div class="container-fluid justify-content-center">
+																				<span class="navbar-brand mb-0 h1">Leave a
+																					comment</span>
+																			</div>
+																		</nav>
+
+																		<form id="commentForm">
+																			<input type="hidden" id="postId" name="postId"
+																				th:value="${post.postId}" class="form-control">
+																			<div class="form-outline mb-3 pt-2 pb-2">
+																				<input type="text" class="form-control" id="name"
+																					name="name" placeholder="Enter name">
+																			</div>
+																			<div class="form-outline mb-3 pt-2 pb-2">
+																				<input type="email" class="form-control" id="email"
+																					name="email" placeholder="Enter email">
+																			</div>
+																			<div class="form-outline mb-3 pt-2 pb-2">
+																				<textarea id="comment" name="comment"
+																					class="form-control" placeholder="Enter comment"></textarea>
+																			</div>
+																			<div class="d-grid gap-2">
+																				<button type="submit" id="post"
+																					class="btn btn-primary">Submit</button>
+																			</div>
+																		</form>
+
+																		<script>
+                                                        $(document).ready(function () {
+                                                            $('#commentForm').on('submit', function(e){
+                                                                e.preventDefault(); // Prevent form submission
+
+                                                                // Gather form data
+                                                                const postData = {
+                                                                    postId: $("#postId").val(),
+                                                                    name: $("#name").val(),
+                                                                    email: $("#email").val(),
+                                                                    comment: $("#comment").val()
+                                                                };
+
+                                                                $.ajax({
+                                                                    type: 'POST',  // Use POST method
+                                                                    url: '/comment?postId=' + postData.postId,
+                                                                    contentType: 'application/json',
+                                                                    data: JSON.stringify(postData), // Send data as JSON
+                                                                    success: function(result) {
+                                                                    	 //const createdOn = new Date().toLocaleString();
+                                                                        // Append the new comment to the comment section
+                                                                        $('#comment-section').append(`
+                                                                            <div>
+                                                                                <p><strong>Name:${result.name}</strong></p>
+                                                                               <p><strong>Date:(${result.createdOn})</strong></p>
+                                                                                <p><strong>comment :</strong>${result.comment}</p>
+                                                                                <hr>
+                                                                            </div> 
+                                                                        `);
+                                                                        // Clear the form fields
+                                                                        $("#name").val('');
+                                                                        $("#email").val('');
+                                                                        $("#comment").val('');
+                                                                    },
+                                                                    error: function() {
+                                                                        alert("Failed to post comment. Please try again.");
+                                                                    }
+                                                                });
+                                                            });
+                                                        });
+                                                    </script>
+																	</div>
+																</div>
+															</div>
+														</div>
+
+
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			<footer>
+				<div class="container">
+
+					<span>copyright 2024 <a href="/"
+						class="text-decoration-none text-warning">Tanu IT</a>. All rights
+						reserved.
+					</span>
+
+				</div>
+			</footer>
+
+
+		</div>
+	</div>
+</body>
+
+</html>
+
